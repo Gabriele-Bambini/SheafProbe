@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+.ipynb_checkpoints/
+.pytest_cache/
+.DS_Store
+desktop.ini
+
+# scratch / logs / large downloads (loaders re-download these)
+results_quick/
+*.log
+/data/
+
+# results JSON + figures ARE committed (they are the evidence the README points to).
+# NOTE: only the top-level /data/ is ignored, NOT the sheafprobe/data/ package.

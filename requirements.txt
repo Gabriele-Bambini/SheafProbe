@@ -1,0 +1,12 @@
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.3
+torch>=2.2
+pandas>=2.0
+matplotlib>=3.7
+networkx>=3.0
+tqdm>=4.65
+requests>=2.31
+# optional, only for real-data base-pair-probability folding (not required for synthetic):
+# ViennaRNA>=2.6
+# kaggle>=1.6   # needed only to download Ribonanza / OpenVaccine

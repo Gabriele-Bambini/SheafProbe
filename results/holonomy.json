@@ -1,0 +1,18 @@
+{
+  "task": "holonomy",
+  "seed": 0,
+  "n_samples": 400,
+  "config": {
+    "n_nodes": 40,
+    "noise": 0.1,
+    "delta": 1.0
+  },
+  "auroc": {
+    "sheaf_correct_maps": 0.999775,
+    "sheaf_identity_maps": 0.49667500000000003,
+    "node_norm_variance": 0.52855,
+    "node_angle_entropy": 0.49578750000000005
+  },
+  "sheaf_necessity_gap_correct_minus_identity": 0.5030999999999999,
+  "note": "Maps are FIXED from geometry, not learned -> not rigged. Node/identity baselines are at chance by construction; only the correct sheaf maps detect the global holonomy obstruction."
+}

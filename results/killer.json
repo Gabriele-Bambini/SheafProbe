@@ -1,0 +1,80 @@
+{
+  "task": "killer",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_samples": 300,
+  "config": {
+    "k": 8,
+    "n_layers": 3,
+    "epochs": 80
+  },
+  "auroc": {
+    "sheaf_general": {
+      "mean": 0.841525925925926,
+      "std": 0.027931635137002073,
+      "per_seed": [
+        0.820088888888889,
+        0.8809777777777777,
+        0.8235111111111112
+      ]
+    },
+    "sheaf_general_pooled_ci": [
+      0.7755462085119882,
+      0.8678389141654987
+    ],
+    "sheaf_identity": {
+      "mean": 0.9141777777777778,
+      "std": 0.008621840388643416,
+      "per_seed": [
+        0.9262666666666667,
+        0.9067555555555555,
+        0.9095111111111112
+      ]
+    },
+    "entropy_bpp_gold": 0.5961333333333333,
+    "transformer_recon": 0.019200000000000002
+  },
+  "confound_report": {
+    "n_samples": 300,
+    "bare_auroc": 0.8235111111111112,
+    "auroc_ci_lo": 0.7755462085119882,
+    "auroc_ci_hi": 0.8678389141654987,
+    "spearman_estar_label": {
+      "rho": 0.5603407942705646,
+      "p": 3.364473099824621e-26
+    },
+    "confounds_used": [
+      "mean_unpaired_prob",
+      "frac_nan_dms",
+      "n_candidate_edges",
+      "length"
+    ],
+    "partial_corr_per_confound": {
+      "mean_unpaired_prob": {
+        "partial_spearman": 0.560148247872816,
+        "p": 4.2647448295160276e-26
+      },
+      "frac_nan_dms": {
+        "partial_spearman": 0.5596172515173664,
+        "p": 4.85458780844074e-26
+      },
+      "n_candidate_edges": {
+        "partial_spearman": 0.03632538208367757,
+        "p": 0.5315116582844728
+      },
+      "length": {
+        "partial_spearman": 0.5603407942705646,
+        "p": 3.364473099824621e-26
+      }
+    },
+    "partial_corr_joint": {
+      "partial_spearman": 0.028478372272704732,
+      "p": 0.6249713140603469
+    }
+  },
+  "beats_gold": true,
+  "sheaf_necessity_gap_general_minus_identity": -0.07265185185185175
+}

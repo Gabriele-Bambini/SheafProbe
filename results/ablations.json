@@ -1,0 +1,23 @@
+{
+  "task": "ablations",
+  "seed": 0,
+  "n_samples": 300,
+  "config": {
+    "n_layers": 3,
+    "epochs": 80
+  },
+  "mode_auroc": {
+    "general": 0.820088888888889,
+    "diagonal": 0.7669333333333335,
+    "identity": 0.9262666666666667
+  },
+  "stalk_dim_auroc": {
+    "1": 0.6712888888888889,
+    "4": 0.6831555555555555,
+    "8": 0.820088888888889
+  },
+  "reagent_auroc": {
+    "dual_shape_dms": 0.820088888888889,
+    "single_shape_only": 0.8924888888888889
+  }
+}

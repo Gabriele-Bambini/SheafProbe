@@ -186,6 +186,39 @@ def _holonomy_bar(holo: Dict, fig_dir: str) -> Optional[str]:
     return out
 
 
+def _real_openknot_bar(real: Dict, fig_dir: str) -> Optional[str]:
+    """Real OpenKnot data: sheaf vs gold/identity/transformer (pseudoknot detection)."""
+    auroc = real.get("auroc", {})
+
+    def _as_float(v):
+        return float(v["mean"]) if isinstance(v, dict) else float(v)
+
+    order = [
+        ("entropy-bpp\n(gold)", "entropy_bpp_gold"),
+        ("SheafProbe\n(general)", "sheaf_general"),
+        ("SheafProbe\n(identity)", "sheaf_identity"),
+        ("Transformer", "transformer_recon"),
+    ]
+    names = [n for n, key in order if key in auroc]
+    vals = [_as_float(auroc[key]) for _, key in order if key in auroc]
+    if not vals:
+        return None
+    fig, ax = plt.subplots(figsize=(6.4, 4.0))
+    ax.bar(names, vals, color=["#b5651d", "#9aa0a6", "#9aa0a6", "#9aa0a6"][:len(vals)])
+    ax.axhline(0.5, color="red", ls="--", lw=1, label="chance")
+    for x, v in enumerate(vals):
+        ax.text(x, v + 0.01, f"{v:.3f}", ha="center", va="bottom", fontsize=9)
+    ax.set_ylim(0.0, 1.05)
+    ax.set_ylabel("AUROC (pseudoknot detection)")
+    ax.set_title("Real OpenKnot data: gold standard wins (sheaf handicapped)")
+    ax.legend(loc="lower right", fontsize=8)
+    fig.tight_layout()
+    out = os.path.join(fig_dir, "real_openknot_bar.png")
+    fig.savefig(out, dpi=130)
+    plt.close(fig)
+    return out
+
+
 def make_plots(results_dir) -> List[str]:
     """Render all available figures into ``<results_dir>/figures/``.
 
@@ -220,6 +253,12 @@ def make_plots(results_dir) -> List[str]:
     holo = _load_json(results_dir, "holonomy.json")
     if holo is not None:
         path = _holonomy_bar(holo, fig_dir)
+        if path:
+            written.append(os.path.abspath(path))
+
+    real = _load_json(results_dir, "real_openknot.json")
+    if real is not None:
+        path = _real_openknot_bar(real, fig_dir)
         if path:
             written.append(os.path.abspath(path))
 

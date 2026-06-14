@@ -22,13 +22,15 @@ honest — which is the point.
 
 | Experiment | Question | Result |
 |---|---|---|
-| **A. Cross-view killer** | Does the *learned* sheaf energy E\* beat the gold standard at detecting heterogeneity? | E\* **beats** the non-learned gold standard (AUROC **0.84 vs 0.60**) — **but** plain graph diffusion (identity maps) does *better* (**0.91–0.93**), and a single reagent beats two. **The learned restriction maps are decorative here.** |
-| **B. Holonomy** | Is there a regime where the sheaf is *provably necessary*? | **Yes.** When heterogeneity is a global **holonomy obstruction**, the sheaf with correct maps reaches AUROC **≈1.00** while identity-map diffusion and every node-level baseline sit at **chance (≈0.50)**. |
+| **A. Cross-view killer** (synthetic) | Does the *learned* sheaf energy E\* beat the gold standard at detecting heterogeneity? | E\* **beats** the non-learned gold standard (AUROC **0.84 vs 0.60**) — **but** plain graph diffusion (identity maps) does *better* (**0.91–0.93**), and a single reagent beats two. **The learned restriction maps are decorative here.** |
+| **B. Holonomy** (synthetic) | Is there a regime where the sheaf is *provably necessary*? | **Yes.** When heterogeneity is a global **holonomy obstruction**, the sheaf with correct maps reaches AUROC **≈1.00** while identity-map diffusion and every node-level baseline sit at **chance (≈0.50)**. |
+| **C. Real OpenKnot data** | On real RNA, does the sheaf detect pseudoknots from SHAPE? | **No win.** The non-learned gold standard leads (**0.69**), sheaf general/identity tie (**0.63/0.61**). Honest, and consistent with A — with the documented handicap that ViennaRNA's nested folding can't even place the crossing pairs. |
 
 **The honest one-liner:** a cellular sheaf is the *only* tool that works precisely when the
-heterogeneity signal lives in cycle holonomy (Part B); when the signal also has a per-position
-footprint, a plain GNN already captures it and the sheaf machinery adds nothing (Part A).
-The hard open problem is *learning* the restriction maps from data.
+heterogeneity signal lives in cycle holonomy (Part B); when the signal has a per-position
+footprint, a plain GNN already captures it (Part A); and on real OpenKnot RNAs the simple
+entropy baseline still leads (Part C). The hard open problem is *learning* the restriction
+maps from data — and giving the graph the pseudoknot-crossing edges the sheaf would need.
 
 ---
 
@@ -97,6 +99,40 @@ Per-edge E\* localises the competing stems on a multi-state molecule:
 
 ---
 
+## Part C — real RNA: OpenKnot (this actually ran)
+
+The synthetic experiments motivate; this is real data. We pulled **OpenKnotBench**
+(`eternagame/OpenKnotAIDesignData`, git-LFS), took a class-balanced subsample of **200
+molecules** (100 pseudoknot / 100 not, by the benchmark's RNet reference structure, high
+signal-to-noise only), built **structure-blind ViennaRNA base-pair-probability edges**, and
+ran the same multi-seed killer benchmark on the real SHAPE reactivity.
+
+| Method | AUROC (pseudoknot detection, real SHAPE) |
+|---|---|
+| **entropy-of-pairing — gold standard** | **0.688** |
+| SheafProbe — general | 0.634 ± 0.025 |
+| SheafProbe — identity | 0.611 |
+| Transformer reconstruction residual | 0.616 |
+
+`beats_gold = False`. On real RNA the **non-learned gold standard leads**, and general ≈
+identity (gap +0.02). One nuance vs the synthetic: here E\* **does** survive the joint
+confound battery (partial-ρ 0.27, p<10⁻³). Everything is modest (0.61–0.69): pseudoknot
+detection from a single reagent is genuinely hard, and the sheaf is **handicapped by
+construction** — ViennaRNA folds nested-only, so the candidate graph cannot contain the
+crossing pairs that define a pseudoknot, which is exactly the cycle structure the sheaf would
+need. Reported as-is (`results/real_openknot.json`).
+
+![Real OpenKnot](results/figures/real_openknot_bar.png)
+
+Reproduce (needs `pip install ViennaRNA` and the OpenKnot LFS data):
+```bash
+git clone https://github.com/eternagame/OpenKnotAIDesignData.git && cd OpenKnotAIDesignData && git lfs pull && cd ..
+python scripts/run_openknot.py --csv OpenKnotAIDesignData/Data/OpenKnotBench_data.v4.5.1.csv \
+    --n-per-class 100 --epochs 40 --out results
+```
+
+---
+
 ## Install & reproduce
 
 ```bash
@@ -120,17 +156,13 @@ Everything above is **CPU-only** and seeded. Results land in `results/*.json` an
 
 `sheafprobe/data/loaders.py` targets three public datasets:
 
-- **OpenKnot** (`eternagame/OpenKnotAIDesignData`, GitHub) — pseudoknot SHAPE data; the natural
-  high-obstruction validation set. *Note: the CSVs are git-LFS; run `git lfs pull` to fetch them.*
+- **OpenKnot** (`eternagame/OpenKnotAIDesignData`, GitHub) — pseudoknot SHAPE data; **run in
+  Part C above** (`scripts/run_openknot.py`). CSVs are git-LFS (`git lfs pull`).
 - **Ribonanza** (Kaggle `stanford-ribonanza-rna-folding`) — 167k sequences with **both** 2A3-SHAPE
-  and DMS on the same molecule (the real dual-view signal). Needs Kaggle credentials.
-- **OpenVaccine** (Kaggle) — per-nucleotide mRNA degradation labels.
+  and DMS on the same molecule (the real dual-view signal). Needs Kaggle credentials. *Not run.*
+- **OpenVaccine** (Kaggle) — per-nucleotide mRNA degradation labels. *Not run.*
 
-```bash
-python -m sheafprobe.experiments.run --task real-openknot --out results   # skips cleanly if offline
-```
-
-The synthetic experiments above are self-contained and need none of these.
+The synthetic experiments (Parts A & B) are self-contained and need none of these.
 
 ---
 
@@ -141,6 +173,7 @@ sheafprobe/
   data/      schema.py (Sample), synthetic.py (cross-view generator), loaders.py (real data)
   models/    sheaf.py (Neural-Sheaf-Diffusion, general/diagonal/identity + E*), baselines.py
   experiments/ killer.py (Part A), ablations.py, holonomy.py (Part B), metrics.py, plots.py, run.py
+scripts/     run_openknot.py (Part C, real data)
 tests/       sheaf-math, synthetic, pipeline smoke
 docs/        design spec
 ```
@@ -155,8 +188,10 @@ docs/        design spec
   maps*; it does **not** show that those maps can be *learned* from real reactivity — that is the
   central open problem.
 - The synthetic generators are biophysically *motivated* (two distinct probes; helix transport;
-  domain-wall frustration) but are **controlled stress-tests**, not real RNA. Real-data validation
-  (OpenKnot/Ribonanza) is wired but not yet run at scale.
+  domain-wall frustration) but are **controlled stress-tests**, not real RNA.
+- **Real data (Part C) was run on OpenKnot** but at modest scale (200 molecules) and with a real
+  handicap (nested-only candidate edges; SHAPE-only). Ribonanza/OpenVaccine (the true dual-reagent
+  signal) need Kaggle credentials and were not run.
 - The transformer baseline is weak/anti-correlated (see †) and not load-bearing.
 
 ---

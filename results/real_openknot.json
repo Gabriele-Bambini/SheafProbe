@@ -1,0 +1,88 @@
+{
+  "task": "killer",
+  "seeds": [
+    0,
+    1
+  ],
+  "n_samples": 200,
+  "config": {
+    "k": 8,
+    "n_layers": 3,
+    "epochs": 40
+  },
+  "auroc": {
+    "sheaf_general": {
+      "mean": 0.63435,
+      "std": 0.02514999999999995,
+      "per_seed": [
+        0.6092000000000001,
+        0.6595
+      ]
+    },
+    "sheaf_general_pooled_ci": [
+      0.5751051504747702,
+      0.7253323309951981
+    ],
+    "sheaf_identity": {
+      "mean": 0.61045,
+      "std": 0.0020499999999999963,
+      "per_seed": [
+        0.6084,
+        0.6125
+      ]
+    },
+    "entropy_bpp_gold": 0.6883,
+    "transformer_recon": 0.6164000000000001
+  },
+  "confound_report": {
+    "n_samples": 200,
+    "bare_auroc": 0.6595,
+    "auroc_ci_lo": 0.5751051504747702,
+    "auroc_ci_hi": 0.7253323309951981,
+    "spearman_estar_label": {
+      "rho": 0.2762655571482838,
+      "p": 7.500031508462089e-05
+    },
+    "confounds_used": [
+      "mean_unpaired_prob",
+      "frac_nan_dms",
+      "n_candidate_edges",
+      "length"
+    ],
+    "partial_corr_per_confound": {
+      "mean_unpaired_prob": {
+        "partial_spearman": 0.23140842205860945,
+        "p": 0.0010068489099418893
+      },
+      "frac_nan_dms": {
+        "partial_spearman": 0.2762655571482838,
+        "p": 7.500031508462089e-05
+      },
+      "n_candidate_edges": {
+        "partial_spearman": 0.32799377736800445,
+        "p": 2.253384236515536e-06
+      },
+      "length": {
+        "partial_spearman": 0.2762655571482838,
+        "p": 7.500031508462089e-05
+      }
+    },
+    "partial_corr_joint": {
+      "partial_spearman": 0.2678282461506752,
+      "p": 0.00013632399436700265
+    }
+  },
+  "beats_gold": false,
+  "sheaf_necessity_gap_general_minus_identity": 0.02389999999999992,
+  "dataset": "OpenKnotBench (real SHAPE; label=RNet_structure pseudoknot; ViennaRNA-BPP nested edges)",
+  "n_molecules_used": 200,
+  "pool_pos_neg": [
+    1697,
+    301
+  ],
+  "caveats": [
+    "ViennaRNA BPP edges are nested-only (cannot encode the crossing pairs).",
+    "Label is the model-derived RNet reference structure, not a gold experimental structure.",
+    "SHAPE-only (no DMS), so the cross-view term is inactive."
+  ]
+}

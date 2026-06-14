@@ -66,27 +66,58 @@ def _is_pseudoknot(structure: str) -> int:
     return int(any(c in _PK_BRACKETS for c in structure))
 
 
+def _bpp_candidate_edges(seq: str, min_prob: float = 0.05,
+                         max_per_nt: float = 2.0) -> Optional[List[tuple]]:
+    """STRUCTURE-BLIND candidate base pairs from a ViennaRNA partition-function fold.
+
+    Returns (i, j, prob) pairs whose base-pair probability exceeds ``min_prob``,
+    capped at ``max_per_nt * n`` strongest pairs. Returns ``None`` if ViennaRNA is
+    not installed (caller falls back). This is the key anti-leakage step: candidate
+    edges come from sequence alone, never from the experimental structure that also
+    defines the label.
+    """
+    try:
+        import RNA  # ViennaRNA
+    except ImportError:
+        return None
+    n = len(seq)
+    fc = RNA.fold_compound(seq.replace("T", "U"))
+    fc.pf()
+    bpp = fc.bpp()  # 1-indexed [n+1][n+1] upper triangle
+    out = []
+    for i in range(1, n + 1):
+        for j in range(i + 1, n + 1):
+            p = bpp[i][j]
+            if p > min_prob:
+                out.append((i - 1, j - 1, float(p)))
+    out.sort(key=lambda t: t[2], reverse=True)
+    cap = int(max_per_nt * n)
+    return out[:cap] if cap > 0 else out
+
+
 def _sample_from_record(rec_id: str, seq: str,
                         shape: np.ndarray,
                         structure: Optional[str]) -> Optional[Sample]:
     """Build a :class:`Sample` from a parsed OpenKnot-style record (SHAPE only).
 
-    DMS is all-nan (OpenKnot is a single-reagent design set). ``label_multistate``
-    comes from the pseudoknot annotation when a structure is present, else 0.
+    Candidate base-pair edges come from a STRUCTURE-BLIND ViennaRNA base-pair-
+    probability fold (no leakage); the experimental ``structure`` is used ONLY to set
+    ``label_multistate`` (pseudoknot vs not). DMS is all-nan (single-reagent set).
     Returns ``None`` if the record is unusable (empty / length mismatch).
     """
     n = len(seq)
     if n < 4 or shape.shape[0] != n:
         return None
     structure = structure if structure else ""
-    pairs = _candidate_edges_from_structure(structure) if structure else []
-    if not pairs:
-        # No structure annotation: use a few backbone-distant decoys so the graph
-        # is non-empty; honest about the lack of pairing prior via low weights.
-        pairs = [(i, min(i + 8, n - 1)) for i in range(0, n - 8, 8)]
-        weights = np.full(len(pairs), 0.5, dtype=np.float64)
+
+    bpp_pairs = _bpp_candidate_edges(seq)
+    if bpp_pairs:
+        pairs = [(i, j) for (i, j, _p) in bpp_pairs]
+        weights = np.array([0.5 + 0.5 * p for (_i, _j, p) in bpp_pairs], dtype=np.float64)
     else:
-        weights = np.full(len(pairs), 0.9, dtype=np.float64)
+        # ViennaRNA unavailable: structure-blind backbone-distant decoys (low weight).
+        pairs = [(i, min(i + 8, n - 1)) for i in range(0, max(1, n - 8), 8)]
+        weights = np.full(len(pairs), 0.5, dtype=np.float64)
     if not pairs:
         pairs = [(0, min(3, n - 1))]
         weights = np.array([0.5], dtype=np.float64)

@@ -6,7 +6,7 @@ views (SHAPE + DMS), separates **multi-state / pseudoknotted** molecules from
 **single-state** ones — *by construction*, beating a non-learned gold-standard
 (entropy-of-pairing) and a plain graph-diffusion baseline. CPU-only. Small.
 
-Repo root: `G:\My Drive\progetti GNN\SheafProbe`. Package: `sheafprobe`.
+Package: `sheafprobe`.
 
 ## Thesis encoded in code
 - Two reagents = two **distinct linear projections** of one latent pairing state.

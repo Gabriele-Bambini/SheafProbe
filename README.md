@@ -1,5 +1,7 @@
 # SheafProbe
 
+![CI](https://github.com/Gabriele-Bambini/SheafProbe/actions/workflows/ci.yml/badge.svg) ![License: MIT](https://img.shields.io/badge/license-MIT-blue) ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+
 **Conformational heterogeneity of mRNA as a sheaf-cohomology obstruction — and an honest map of when cellular sheaves actually help.**
 
 A therapeutic mRNA is a *conformational ensemble*, yet structure models assume one fold and
@@ -14,7 +16,7 @@ This repo implements that idea end-to-end **and tests it adversarially**, includ
 ablation that questions the method itself. The headline finding is deliberately two-sided and
 honest — which is the point.
 
-> ℹ️ Design spec: [`../docs/superpowers/specs/2026-06-14-sheafprobe-mrna-conformational-heterogeneity-design.md`](../docs/superpowers/specs/2026-06-14-sheafprobe-mrna-conformational-heterogeneity-design.md)
+> ℹ️ Frozen interfaces and the build contract: [`docs/CONTRACT.md`](docs/CONTRACT.md)
 
 ---
 
@@ -175,7 +177,7 @@ sheafprobe/
   experiments/ killer.py (Part A), ablations.py, holonomy.py (Part B), metrics.py, plots.py, run.py
 scripts/     run_openknot.py (Part C, real data)
 tests/       sheaf-math, synthetic, pipeline smoke
-docs/        design spec
+docs/        CONTRACT.md (frozen interfaces)
 ```
 
 ---
